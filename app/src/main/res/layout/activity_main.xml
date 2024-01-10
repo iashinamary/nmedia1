@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/common_spacing"
-        android:background="@android:color/trasparent"
+        android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_more_vert_24" />
