@@ -18,20 +18,20 @@
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/author"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/common_spacing"
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/netology"
-        app:layout_constraintBottom_toTopOf="@+id/date"
+        app:layout_constraintBottom_toTopOf="@+id/published"
         app:layout_constraintEnd_toStartOf="@+id/imageButton"
         app:layout_constraintStart_toEndOf="@+id/avatar"
         app:layout_constraintTop_toTopOf="@+id/avatar" />
 
     <TextView
-        android:id="@+id/date"
+        android:id="@+id/published"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/common_spacing"
@@ -39,7 +39,7 @@
         app:layout_constraintBottom_toBottomOf="@id/avatar"
         app:layout_constraintEnd_toStartOf="@+id/imageButton"
         app:layout_constraintStart_toEndOf="@+id/avatar"
-        app:layout_constraintTop_toBottomOf="@+id/name" />
+        app:layout_constraintTop_toBottomOf="@+id/author" />
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -57,11 +57,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="avatar,date"
+        app:constraint_referenced_ids="avatar,published"
         tools:layout_editor_absoluteY="16dp" />
 
     <TextView
-        android:id="@+id/text1"
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/common_spacing"
@@ -75,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="text1"
+        app:constraint_referenced_ids="content"
         tools:layout_editor_absoluteY="64dp" />
 
     <ImageButton
