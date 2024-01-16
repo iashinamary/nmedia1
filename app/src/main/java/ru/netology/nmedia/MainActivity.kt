@@ -22,16 +22,18 @@ class MainActivity : AppCompatActivity() {
             content = "Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
             published = "21 мая в 18:36",
             likedByMe = false,
-            likes = 0,
-            shares = 999
+            likes = 999,
+            shares = 10_999,
+            views = 10_236_568
         )
 
         with(binding) {
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            likeCount.text = post.likes.toString()
-            shareCount.text = post.shares.toString()
+            likeCount.text = reduce(post.likes)
+            shareCount.text = reduce(post.shares)
+            viewCount.text = reduce(post.views)
             if (post.likedByMe) {
                 like?.setImageResource(R.drawable.ic_baseline_favorite_24)
             }
@@ -42,12 +44,12 @@ class MainActivity : AppCompatActivity() {
                     if (post.likedByMe) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24
                 )
                 if (post.likedByMe) post.likes++ else post.likes--
-                likeCount.text = post.likes.toString()
+                likeCount.text = reduce((++post.likes))
 
             }
 
             share?.setOnClickListener {
-                shareCount.text = reduce((post.shares++))
+                shareCount.text = reduce((++post.shares))
             }
         }
 
@@ -64,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             else -> {
                 val number = BigDecimal(count)
                 val result = number.divide(BigDecimal(1000000), 1, RoundingMode.FLOOR)
-                result.toString() + "K"
+                result.toString() + "M"
             }
         }
 }
