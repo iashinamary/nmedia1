@@ -2,6 +2,7 @@ package ru.netology.nmedia
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
 import java.math.BigDecimal
@@ -44,12 +45,12 @@ class MainActivity : AppCompatActivity() {
                     if (post.likedByMe) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24
                 )
                 if (post.likedByMe) post.likes++ else post.likes--
-                likeCount.text = reduce((++post.likes))
+                likeCount.text = reduce(post.likes)
 
             }
 
             share?.setOnClickListener {
-                shareCount.text = reduce((++post.shares))
+                shareCount.text = reduce((post.shares))
             }
         }
 
@@ -58,9 +59,14 @@ class MainActivity : AppCompatActivity() {
     fun reduce(count: Int): String =
         when (count) {
             in 0..999 -> count.toString()
-            in 1000..999_999 -> {
+            in 1000..9_999 -> {
                 val number = BigDecimal(count)
                 val result = number.divide(BigDecimal(1000), 1, RoundingMode.FLOOR)
+                result.toString() + "K"
+            }
+            in 10_000..999_999 -> {
+                val number = BigDecimal(count)
+                val result = number.divide(BigDecimal(1000), 0, RoundingMode.FLOOR)
                 result.toString() + "K"
             }
             else -> {
