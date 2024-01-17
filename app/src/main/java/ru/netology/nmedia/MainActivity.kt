@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             share?.setOnClickListener {
-                shareCount.text = reduce((post.shares))
+                shareCount.text = reduce(post.shares)
             }
         }
 
