@@ -2,6 +2,7 @@ package ru.netology.nmedia.dto
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ru.netology.nmedia.repository.PostRepository
 
 class PostRepositoryInMemoryImpl: PostRepository {
     private var post = Post(
@@ -21,15 +22,12 @@ class PostRepositoryInMemoryImpl: PostRepository {
 
     override fun like() {
         post = post.copy(likedByMe = !post.likedByMe)
-        data.value = post
-    }
-    override fun setLike() {
         if (post.likedByMe) post.copy(likes = post.likes++) else post.copy(likes = post.likes--)
         data.value = post
     }
 
     override fun share() {
-        data.value = post.copy(shares = post.shares++)
+        data.value = post.copy(shares = ++post.shares)
 
     }
 

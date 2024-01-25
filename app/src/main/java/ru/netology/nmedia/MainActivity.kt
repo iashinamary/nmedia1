@@ -2,15 +2,10 @@ package ru.netology.nmedia
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import ru.netology.nmedia.Counter.reduce
 import ru.netology.nmedia.databinding.ActivityMainBinding
-import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.dto.PostViewModel
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
+import ru.netology.nmedia.viewmodel.PostViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -37,7 +32,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.like.setOnClickListener {
             viewModel.like()
-            viewModel.setLike()
         }
 
         binding.share.setOnClickListener {
