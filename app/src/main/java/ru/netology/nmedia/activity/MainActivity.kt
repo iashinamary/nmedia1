@@ -1,11 +1,18 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
+import com.google.android.material.snackbar.Snackbar
+import ru.netology.nmedia.NewPostResultContract
+import ru.netology.nmedia.OnInteractionListener
+import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
@@ -31,7 +38,29 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onShare(post: Post){
-                viewModel.shareById(post.id)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                    type = "text/plain"
+                }
+                intent.let {
+                    if (it.action != Intent.ACTION_SEND){
+                        return@let
+                    }
+
+                    val text = it.getStringExtra(Intent.EXTRA_TEXT)
+                    if (text.isNullOrBlank()) {
+                        Snackbar.make(binding.root, R.string.error_empty_content, LENGTH_INDEFINITE)
+                            .setAction(android.R.string.ok){
+                                finish()
+                            }
+                            .show()
+                        return@let
+                    }
+                }
+
+                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                startActivity(shareIntent)
             }
 
             override fun onRemove(post: Post){
@@ -85,6 +114,14 @@ class MainActivity : AppCompatActivity() {
                 AndroidUtils.hideKeyboard(this)
             }
         }
+        val newPostLauncher = registerForActivityResult(NewPostResultContract()) { result ->
+            result ?: return@registerForActivityResult
+            viewModel.changeContent(result)
+            viewModel.save()
+        }
 
+        binding.fab.setOnClickListener {
+            newPostLauncher.launch()
+        }
     }
 }
