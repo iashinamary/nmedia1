@@ -8,9 +8,6 @@ import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
-import com.google.android.material.snackbar.Snackbar
-import ru.netology.nmedia.NewPostResultContract
 import ru.netology.nmedia.OnInteractionListener
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
@@ -27,7 +24,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         val viewModel: PostViewModel by viewModels()
+
         val adapter = PostAdapter( object : OnInteractionListener {
             override fun onEdit(post: Post){
                 viewModel.edit(post)
@@ -42,21 +41,6 @@ class MainActivity : AppCompatActivity() {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_TEXT, post.content)
                     type = "text/plain"
-                }
-                intent.let {
-                    if (it.action != Intent.ACTION_SEND){
-                        return@let
-                    }
-
-                    val text = it.getStringExtra(Intent.EXTRA_TEXT)
-                    if (text.isNullOrBlank()) {
-                        Snackbar.make(binding.root, R.string.error_empty_content, LENGTH_INDEFINITE)
-                            .setAction(android.R.string.ok){
-                                finish()
-                            }
-                            .show()
-                        return@let
-                    }
                 }
 
                 val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
@@ -73,55 +57,62 @@ class MainActivity : AppCompatActivity() {
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
         }
-
-        binding.cancelEdit.setOnClickListener {
-            viewModel.cancelEdit()
-            binding.newContent.setText("")
+        val editPostLauncher = registerForActivityResult(NewPostResultContract()) { result ->
+            result ?: return@registerForActivityResult
+            viewModel.changeContent(result)
+            viewModel.save()
         }
-
-        viewModel.edited.observe(this){ post ->
-            if(post.id == 0L){
-                binding.editGroup.isGone = true
+        viewModel.edited.observe(this) { post ->
+            if (post.id == 0L) {
                 return@observe
             }
+        val intent = Intent(this, NewPostActivity::class.java)
+            intent.putExtra("edited_text", post.content)
 
-            binding.preview.text = post.content
-
-            binding.editGroup.isVisible = true
-
-            with(binding.newContent){
-                requestFocus()
-                setText(post.content)
-            }
+            editPostLauncher.launch("edited_text")
+//            if (post.id == 0L) {
+//                binding.editGroup.isGone = true
+//                return@observe
+//            }
         }
 
-        binding.save.setOnClickListener {
-            with(binding.newContent){
-                if(text.isNullOrBlank()){
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Content can't be empty",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                }
+//            binding.preview.text = post.content
+//
+//            binding.editGroup.isVisible = true
+//
+//            with(binding.newContent){
+//                requestFocus()
+//                setText(post.content)
+//            }
+//        }
+//
+//        binding.save.setOnClickListener {
+//            with(binding.newContent){
+//                if(text.isNullOrBlank()){
+//                    Toast.makeText(
+//                        this@MainActivity,
+//                        "Content can't be empty",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                    return@setOnClickListener
+//                }
+//
+//                viewModel.changeContent(text.toString())
+//                viewModel.save()
+//
+//                setText("")
+//                clearFocus()
+//                AndroidUtils.hideKeyboard(this)
+//            }
+//        }
 
-                viewModel.changeContent(text.toString())
-                viewModel.save()
-
-                setText("")
-                clearFocus()
-                AndroidUtils.hideKeyboard(this)
-            }
-        }
         val newPostLauncher = registerForActivityResult(NewPostResultContract()) { result ->
             result ?: return@registerForActivityResult
             viewModel.changeContent(result)
             viewModel.save()
         }
-
         binding.fab.setOnClickListener {
-            newPostLauncher.launch()
+            newPostLauncher.launch("edited_text")
         }
     }
 }

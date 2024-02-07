@@ -6,21 +6,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import ru.netology.nmedia.databinding.ActivityNewPostLayoutBinding
 
-class NewPostActivity: AppCompatActivity() {
+class EditPostActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityNewPostLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         val intent = intent
         val text = intent.getStringExtra("edited_text")
-
-        if (text.isNullOrBlank()){
-            binding.edit.requestFocus()
-        } else {
-            binding.edit.setText(text)
-        }
-
+        binding.edit.setText(text)
         binding.ok.setOnClickListener {
             val intent = Intent()
             if (binding.edit.text.isBlank()) {

@@ -22,7 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".activity.IntentHandlerActivity"
             android:exported="true">
@@ -32,6 +32,9 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.NewPostActivity"
+            android:exported="false" />
     </application>
 
 
