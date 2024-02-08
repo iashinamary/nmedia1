@@ -8,10 +8,6 @@
     android:padding="@dimen/common_spacing"
     android:id="@+id/item">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
     <ImageView
         android:id="@+id/avatar"
         android:layout_width="@dimen/posts_avatar_size"
@@ -134,6 +130,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginHorizontal="@dimen/spacing_for_count"
         />
-    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
