@@ -12,6 +12,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.fragments.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.OnInteractionListener as OnInteractionListener1
 
@@ -44,6 +45,11 @@ class PostDetailsFragment: Fragment() {
 
             override fun onEdit(post: Post){
                 viewModel.edit(post)
+                findNavController().navigate(
+                    R.id.action_postDetailsFragment_to_newPostFragment, Bundle().apply {
+                        textArg = post.content
+                    }
+                )
             }
 
             override fun onLike(post: Post){
