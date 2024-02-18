@@ -9,5 +9,9 @@
     <string name="text3">Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb</string>
     <string name="Edit">Изменить</string>
     <string name="OK">OK</string>
+    <string name="google_play_unavailable">Google Api Недоступно</string>
+    <string name="channel_remote_name">Уведомления с сервера</string>
+    <string name="channel_remote_description">Уведомления с удалённого сервера</string>
+    <string name="notification_user_liked">%1$s поставил лайк посту %2$s</string>
 
 </resources>
