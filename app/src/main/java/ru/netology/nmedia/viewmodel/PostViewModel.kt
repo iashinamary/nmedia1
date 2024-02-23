@@ -2,10 +2,14 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.*
+import ru.netology.nmedia.utils.SingleLiveEvent
+import java.io.IOException
+import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
@@ -20,16 +24,40 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(context = application).postDao())
-    val data = repository.getAll()
+    private val repository: PostRepository = PostRepositoryImpl()
+    private val _state = MutableLiveData(FeedState())
+    val data: LiveData<FeedState>
+        get() = _state
     val edited = MutableLiveData(empty)
+    private val _postCreated = SingleLiveEvent<Unit>()
+    val postCreated: LiveData<Unit>
+        get() = _postCreated
 
-    fun save(){
-        edited.value?.let {
-            repository.save(it)
+    init {
+        load()
+    }
+
+    fun load(){
+        thread {
+            _state.postValue(FeedState(loading = true))
+            try {
+                val posts = repository.getAll()
+                FeedState(posts = posts, empty = posts.isEmpty())
+            } catch (e: IOException) {
+                FeedState(error = true)
+            }.also(_state::postValue)
         }
-        edited.value = empty
+    }
+
+    fun save() {
+        thread {
+            edited.value?.let {
+                repository.save(it)
+                edited.postValue(empty)
+                _postCreated.postValue(Unit)
+                load()
+            }
+        }
     }
 
     fun cancelEdit(){
@@ -49,7 +77,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             edited.value = it.copy(content = text)
         }
     }
-    fun likeById(id: Long) = repository.likeById(id)
+    fun likeById(id: Long) {
+        thread {
+            repository.likeById(id)
+        }
+        load()
+    }
     fun shareById(id: Long) = repository.shareById(id)
     fun removeById(id: Long) = repository.removeById(id)
 }
