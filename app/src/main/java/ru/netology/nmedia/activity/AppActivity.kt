@@ -22,6 +22,7 @@ class AppActivity: AppCompatActivity(R.layout.activity_app_layout) {
 
         requestNotificationsPermission()
 
+
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
                 return@let
