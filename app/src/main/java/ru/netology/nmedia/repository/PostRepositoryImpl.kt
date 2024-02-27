@@ -35,18 +35,33 @@ class PostRepositoryImpl: PostRepository {
             }
     }
 
-    override fun likeById(id: Long) {
-        val request: Request = Request.Builder()
-            .url("${BASE_URL}/api/slow/posts/{id}/likes")
+    override fun likeById(id: Long): Post {
+        val requestForLike: Request = Request.Builder()
+            .url("${BASE_URL}/api/slow/posts/${id}/likes")
             .post("".toRequestBody(null))
             .build()
 
-        client.newCall(request)
+        return client.newCall(requestForLike)
             .execute()
             .let { it.body?.string() }
             .let {
                 gson.fromJson(it, Post::class.java)
             }
+    }
+
+    override fun dislikeById(id: Long): Post {
+        val requestForDislike: Request = Request.Builder()
+            .url("${BASE_URL}/api/slow/posts/${id}/likes")
+            .delete("".toRequestBody(null))
+            .build()
+
+        return client.newCall(requestForDislike)
+            .execute()
+            .let { it.body?.string() }
+            .let {
+                gson.fromJson(it, Post::class.java)
+            }
+
     }
 
     override fun shareById(id: Long) {
@@ -65,6 +80,13 @@ class PostRepositoryImpl: PostRepository {
     }
 
     override fun removeById(id: Long) {
+        val request: Request = Request.Builder()
+            .delete()
+            .url("${BASE_URL}/api/slow/posts/$id")
+            .build()
 
+        client.newCall(request)
+            .execute()
+            .close()
     }
 }

@@ -78,11 +78,40 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     fun likeById(id: Long) {
+        val likedByMe = _state.value
+            ?.posts
+            ?.find { it.id == id }
+            ?.likedByMe
+            ?: return
         thread {
-            repository.likeById(id)
+            val newPost = if (likedByMe) {
+                repository.dislikeById(id)
+            } else {
+                repository.likeById(id)
+            }
+            val newList = _state.value
+                ?.posts
+                .orEmpty()
+                .map {
+                    if(it.id == id) newPost else it
+                }
+            _state.postValue(_state.value?.copy(posts = newList))
         }
-        load()
     }
     fun shareById(id: Long) = repository.shareById(id)
-    fun removeById(id: Long) = repository.removeById(id)
+    fun removeById(id: Long) {
+        thread {
+            val old = _state.value?.posts.orEmpty()
+            _state.postValue(
+                _state.value?.copy(posts = _state.value?.posts.orEmpty()
+                    .filter { it.id != id }
+                )
+            )
+            try {
+                repository.removeById(id)
+            } catch (e: IOException) {
+                _state.postValue(_state.value?.copy(posts = old))
+            }
+        }
+    }
 }
