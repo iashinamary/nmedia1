@@ -9,6 +9,7 @@ import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.utils.SingleLiveEvent
 import java.io.IOException
+import java.lang.Exception
 import kotlin.concurrent.thread
 
 private val empty = Post(
@@ -38,15 +39,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun load(){
-        thread {
-            _state.postValue(FeedState(loading = true))
-            try {
-                val posts = repository.getAll()
-                FeedState(posts = posts, empty = posts.isEmpty())
-            } catch (e: IOException) {
-                FeedState(error = true)
-            }.also(_state::postValue)
-        }
+        _state.value = FeedState(loading = true)
+        repository.getAllAsync(object : PostRepository.GetAllCallback {
+            override fun onSuccess(posts: List<Post>) {
+                _state.postValue(FeedState(posts = posts, empty = posts.isEmpty()))
+            }
+
+            override fun onError(e: Exception) {
+                _state.postValue(FeedState(error = true))
+            }
+        })
     }
 
     fun save() {
