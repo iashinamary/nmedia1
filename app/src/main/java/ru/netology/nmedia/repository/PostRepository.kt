@@ -8,15 +8,20 @@ import java.lang.Exception
 
 interface PostRepository {
     fun getAll(): List<Post>
-    fun getAllAsync(callback: GetAllCallback)
-    fun likeById(id: Long) : Post
-    fun dislikeById(id: Long): Post
+    fun getAllAsync(callback: Callback<List<Post>>)
+
+    fun likeByIdAsync(id: Long, callback: Callback<Post>)
+
+    fun dislikeByIdAsync(id: Long, callback: Callback<Post>)
     fun shareById(id: Long)
     fun removeById(id: Long)
-    fun save(post: Post)
 
-    interface GetAllCallback {
-        fun onSuccess(posts: List<Post>){}
+    fun removeByIdAsync(id: Long, callback: Callback<Post>)
+
+    fun saveAsync(post: Post, callback: Callback<Post>)
+
+    interface Callback<T> {
+        fun onSuccess(data: T){}
         fun onError(e: Exception) {}
     }
 }
