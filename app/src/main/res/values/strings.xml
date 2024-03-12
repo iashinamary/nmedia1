@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">nmedia</string>
+    <string name="hello">NMedia!</string>
+    <string name="netology">Нетология. Университет интернет-профессий</string>
+    <string name="date">21 мая в 18:36</string>
+    <string name="text1">Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb</string>
+    <string name="text2"></string>
+    <string name="text3"></string>
+    <string name="chooser_share_post" translatable="false"> </string>
+    <string name="error_empty_content" translatable="false"> Ошибка: пусто</string>
+    <string name="OK">OK</string>
+    <string name="Edit">Edit</string>
+    <string name="google_play_unavailable">Google Api Unavailable</string>
+    <string name="channel_remote_name">Server notifications</string>
+    <string name="channel_remote_description">Notifications from remote server</string>
+    <string name="notification_user_liked">User %1$s liked %2$s\'s post</string>
+    <string name="empty_posts">There are no posts.\nIf you create a new post, it will appear here</string>
+    <string name="retry_loading">Retry</string>
+    <string name="error_loading">Something went wrong. Try again later</string>
+
+</resources>
