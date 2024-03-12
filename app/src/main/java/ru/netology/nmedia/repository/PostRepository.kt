@@ -16,7 +16,7 @@ interface PostRepository {
     fun shareById(id: Long)
     fun removeById(id: Long)
 
-    fun removeByIdAsync(id: Long, callback: Callback<Post>)
+    fun removeByIdAsync(id: Long, callback: Callback<Unit>)
 
     fun saveAsync(post: Post, callback: Callback<Post>)
 

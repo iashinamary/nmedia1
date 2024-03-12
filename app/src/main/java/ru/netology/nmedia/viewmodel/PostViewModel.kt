@@ -18,6 +18,7 @@ import kotlin.coroutines.coroutineContext
 private val empty = Post(
     id = 0,
     author = "",
+    authorAvatar = "",
     content = "",
     published = "",
     likedByMe = false,
@@ -122,9 +123,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
 
-        repository.removeByIdAsync(id, object : PostRepository.Callback<Post> {
-            override fun onSuccess(data: Post) {
-                fetch(id, data)
+        repository.removeByIdAsync(id, object : PostRepository.Callback<Unit> {
+
+            override fun onSuccess(data: Unit) {
+                val updatedPostList = _state.value
+                    ?.posts
+                    .orEmpty()
+                    .map {
+                        if (it.id == id) data else it
+                    }
+                _state.postValue(_state.value?.copy(posts = updatedPostList as List<Post>))
             }
 
             override fun onError(e: Exception) {
