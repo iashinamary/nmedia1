@@ -16,5 +16,8 @@
     <string name="empty_posts">Постов нет.\nЕсли создадите новый пост, то он появится здесь</string>
     <string name="retry_loading">Повторить</string>
     <string name="error_loading">Что-то пошло не так. Попробуйте позднее</string>
+    <string name="unsuccessfull_save">Пост не удалось сохранить</string>
+
+
 
 </resources>

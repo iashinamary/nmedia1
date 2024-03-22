@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -70,9 +70,16 @@ class FeedFragment : Fragment() {
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
             binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error
+            binding.errorGroup.isVisible = state.error_loading
             binding.emptyText.isVisible = state.empty
-
+            if(state.unsaved) {
+                Toast.makeText(context, getString(R.string.unsuccessfull_save), Toast.LENGTH_SHORT)
+                    .show()
+            }
+            if(state.error){
+                Toast.makeText(context, getString(R.string.error_loading), Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
 
         binding.retryButton.setOnClickListener {

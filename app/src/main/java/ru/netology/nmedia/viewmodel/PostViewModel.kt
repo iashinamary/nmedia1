@@ -1,19 +1,14 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.withContext
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.utils.SingleLiveEvent
-import java.io.IOException
 import java.lang.Exception
-import kotlin.concurrent.thread
-import kotlin.coroutines.coroutineContext
 
 private val empty = Post(
     id = 0,
@@ -55,11 +50,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         _state.value = FeedState(loading = true)
         repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
             override fun onSuccess(data: List<Post>) {
-                _state.postValue(FeedState(posts = data, empty = data.isEmpty()))
+                _state.value = FeedState(posts = data, empty = data.isEmpty())
             }
 
             override fun onError(e: Exception) {
-                _state.postValue(FeedState(error = true))
+                _state.value = FeedState(error_loading = true)
             }
         })
     }
@@ -69,13 +64,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let {
             repository.saveAsync(it, object : PostRepository.Callback<Post> {
                 override fun onSuccess(data: Post) {
-                    _postCreated.postValue(Unit)
+                    _postCreated.value = Unit
                 }
 
                 override fun onError(e: Exception) {
-
+                    _state.value = FeedState(unsaved = true)
                 }
             })
+            _postCreated.value = Unit
         }
         edited.value = empty
     }
@@ -105,6 +101,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             override fun onSuccess(data: Post) {
                 fetch(id, data)
             }
+            override fun onError(e: Exception) {
+                _state.value = FeedState(error = true)
+            }
         }
         if (likedByMe) {
             repository.dislikeByIdAsync(id, likeCallback)
@@ -132,11 +131,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     .map {
                         if (it.id == id) data else it
                     }
-                _state.postValue(_state.value?.copy(posts = updatedPostList as List<Post>))
+                _state.value?.copy(posts = updatedPostList as List<Post>)
             }
 
             override fun onError(e: Exception) {
-                _state.postValue(_state.value?.copy(posts = old))
+                _state.value = FeedState(error = true)
             }
         })
     }
