@@ -8,8 +8,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.OnInteractionListener
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
@@ -20,58 +21,59 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+    private val viewModel: PostViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val binding = FeedFragmentLayoutBinding.inflate(
             inflater,
             container,
             false
         )
-        val adapter = PostAdapter( object : OnInteractionListener {
-            override fun onEdit(post: Post){
+
+        val adapter = PostAdapter(object : OnInteractionListener {
+            override fun onEdit(post: Post) {
                 viewModel.edit(post)
-                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
-                    textArg = post.content
-                })
-//
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textArg = post.content
+                    })
             }
 
-            override fun onLike(post: Post){
+            override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
             }
 
-            override fun onShare(post: Post){
+            override fun onShare(post: Post) {
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_TEXT, post.content)
                     type = "text/plain"
                 }
 
-                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                val shareIntent =
+                    Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
-
-                viewModel.shareById(post.id)
             }
 
-            override fun onRemove(post: Post){
+            override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }
+        })
 
-        }
-        )
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error_loading
-            binding.emptyText.isVisible = state.empty
+            binding.swiperefresh.isRefreshing = state.refreshing
+            if (state.errorLoading) {
+                Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
+                    .show()
+            }
             if(state.unsaved) {
                 Toast.makeText(context, getString(R.string.unsuccessfull_save), Toast.LENGTH_SHORT)
                     .show()
@@ -82,17 +84,18 @@ class FeedFragment : Fragment() {
             }
         }
 
-        binding.retryButton.setOnClickListener {
-            viewModel.load()
+
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            adapter.submitList(state.posts)
+            binding.emptyText.isVisible = state.empty
+        }
+
+        binding.swiperefresh.setOnRefreshListener {
+            viewModel.refreshPosts()
         }
 
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
-        }
-
-        binding.swiperefresh.setOnRefreshListener {
-            viewModel.load()
-            binding.swiperefresh.isRefreshing = false
         }
 
         return binding.root

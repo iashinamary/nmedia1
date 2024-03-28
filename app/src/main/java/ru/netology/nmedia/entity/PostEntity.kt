@@ -16,4 +16,16 @@ data class PostEntity(
     var likes: Int = 0,
     var shares: Int = 0,
     var views: Int = 0,
-    )
+    ) {
+
+fun toDto() = Post(id, author, authorAvatar, content, published, likedByMe, likes, shares, views)
+
+companion object {
+    fun fromDto(dto: Post) =
+        PostEntity(dto.id, dto.author, dto.authorAvatar, dto.content, dto.published, dto.likedByMe, dto.likes, dto.shares, dto.views)
+
+}
+}
+
+fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
+fun List<Post>.toEntity(): List<PostEntity> = map(PostEntity::fromDto)

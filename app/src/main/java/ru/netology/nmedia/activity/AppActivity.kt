@@ -12,22 +12,24 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
+import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.databinding.ActivityAppLayoutBinding
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragments.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.viewmodel.PostViewModel
 
 
-class AppActivity: AppCompatActivity(R.layout.activity_app_layout) {
+class AppActivity : AppCompatActivity(R.layout.activity_app_layout) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         requestNotificationsPermission()
 
-
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
                 return@let
             }
-
             val text = it.getStringExtra(Intent.EXTRA_TEXT)
             if (text?.isNotBlank() != true) {
                 return@let

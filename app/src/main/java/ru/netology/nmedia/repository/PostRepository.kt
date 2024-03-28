@@ -1,20 +1,24 @@
 package ru.netology.nmedia.repository
 
 
+import androidx.lifecycle.LiveData
+import retrofit2.http.POST
 import ru.netology.nmedia.dto.Post
 import java.lang.Exception
 
 interface PostRepository {
-    fun getAllAsync(callback: Callback<List<Post>>)
 
-    fun likeByIdAsync(id: Long, callback: Callback<Post>)
+    val data: LiveData<List<Post>>
+    suspend fun getAll()
 
-    fun dislikeByIdAsync(id: Long, callback: Callback<Post>)
-    fun shareById(id: Long)
+    suspend fun likeById(id: Long)
 
-    fun removeByIdAsync(id: Long, callback: Callback<Unit>)
+    suspend fun dislikeById(id: Long)
+    suspend fun shareById(id: Long)
 
-    fun saveAsync(post: Post, callback: Callback<Post>)
+    suspend fun removeById(id: Long)
+
+    suspend fun save(post: Post)
 
     interface Callback<T> {
         fun onSuccess(data: T){}

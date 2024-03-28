@@ -10,3 +10,4 @@ data class Post(
     var likes: Int,
     var shares: Int,
     var views: Int)
+
