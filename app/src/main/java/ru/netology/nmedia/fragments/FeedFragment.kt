@@ -2,6 +2,7 @@ package ru.netology.nmedia.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.OnInteractionListener
 import ru.netology.nmedia.R
@@ -98,6 +101,22 @@ class FeedFragment : Fragment() {
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
+
+        viewModel.newerCount.observe(viewLifecycleOwner){ state ->
+                binding.scrollToTop.isVisible = state > 0
+        }
+
+        binding.scrollToTop.setOnClickListener {
+            viewModel.readAll()
+        }
+
+        adapter.registerAdapterDataObserver(object : AdapterDataObserver(){
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if(positionStart == 0){
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
+        })
 
         return binding.root
     }

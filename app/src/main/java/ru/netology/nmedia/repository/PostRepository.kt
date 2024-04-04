@@ -2,13 +2,17 @@ package ru.netology.nmedia.repository
 
 
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import retrofit2.http.POST
 import ru.netology.nmedia.dto.Post
 import java.lang.Exception
 
 interface PostRepository {
 
-    val data: LiveData<List<Post>>
+    val data: Flow<List<Post>>
+    val visibleData: Flow<List<Post>>
+
+    fun getNewerCount(postId: Long): Flow<Int>
     suspend fun getAll()
 
     suspend fun likeById(id: Long)
@@ -19,6 +23,8 @@ interface PostRepository {
     suspend fun removeById(id: Long)
 
     suspend fun save(post: Post)
+
+    suspend fun readAll()
 
     interface Callback<T> {
         fun onSuccess(data: T){}

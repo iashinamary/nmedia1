@@ -1,6 +1,14 @@
 package ru.netology.nmedia.repository
 
 import androidx.lifecycle.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import okio.IOException
 import ru.netology.nmedia.api.*
 import ru.netology.nmedia.dao.PostDao
@@ -13,10 +21,38 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 
 
+class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
-class PostRepositoryImpl(private val dao: PostDao): PostRepository {
+    override val data = dao.getAll()
+        .map(List<PostEntity>::toDto)
+        .flowOn(Dispatchers.Default)
 
-    override val data = dao.getAll().map(List<PostEntity>::toDto)
+    override val visibleData = dao.getAllVisible()
+        .map(List<PostEntity>::toDto)
+        .flowOn(Dispatchers.Default)
+
+    override fun getNewerCount(postId: Long): Flow<Int> =
+        listOf(
+            flow {
+                while (true) {
+                    try {
+                        delay(10_000)
+                        val response = PostsApiService.service.getNewer(postId)
+
+                        val body = response.body().orEmpty()
+                        emit(body.size)
+                        dao.insert(body.toEntity(hidden = true))
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }, dao.observeUnreadPosts()
+        )
+            .merge()
+            .flowOn(Dispatchers.Default)
+
     override suspend fun getAll() {
         try {
             val response = PostsApiService.service.getAll()
@@ -32,6 +68,7 @@ class PostRepositoryImpl(private val dao: PostDao): PostRepository {
             throw UnknownError
         }
     }
+
     override suspend fun likeById(id: Long) {
         try {
             val response = PostsApiService.service.likeById(id)
@@ -46,7 +83,6 @@ class PostRepositoryImpl(private val dao: PostDao): PostRepository {
             throw UnknownError
         }
     }
-
 
 
     override suspend fun dislikeById(id: Long) {
@@ -83,6 +119,10 @@ class PostRepositoryImpl(private val dao: PostDao): PostRepository {
         } catch (e: Exception) {
             throw UnknownError
         }
+    }
+
+    override suspend fun readAll() {
+        dao.readAll()
     }
 
     override suspend fun removeById(id: Long) {

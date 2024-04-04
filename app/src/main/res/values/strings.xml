@@ -18,5 +18,6 @@
     <string name="retry_loading">Retry</string>
     <string name="error_loading">Something went wrong. Try again later</string>
     <string name="unsuccessfull_save">Couldn\'t save the post</string>
+    <string name="new_posts">New posts</string>
 
 </resources>

@@ -17,7 +17,7 @@
     <string name="retry_loading">Повторить</string>
     <string name="error_loading">Что-то пошло не так. Попробуйте позднее</string>
     <string name="unsuccessfull_save">Пост не удалось сохранить</string>
-
+    <string name="new_posts">Свежие записи</string>
 
 
 </resources>
