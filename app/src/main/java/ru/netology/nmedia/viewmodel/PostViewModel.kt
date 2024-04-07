@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,8 +18,10 @@ import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.utils.SingleLiveEvent
+import java.io.File
 import kotlin.Exception
 
 private val empty = Post(
@@ -58,6 +61,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
+    private val _photo = MutableLiveData<PhotoModel?>()
+    val photo: LiveData<PhotoModel?>
+        get() = _photo
+
+
     private val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -90,18 +98,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun save() {
 
-        edited.value?.let {
-            _postCreated.value = Unit
+        edited.value?.let { post ->
             viewModelScope.launch {
                 try {
-                    repository.save(it)
+                    photo.value?.let {
+                        repository.saveWithAttachment(post, it)
+                    } ?: repository.save(post)
+                    _postCreated.value = Unit
+                    edited.value = empty
                     _dataState.value = FeedModelState()
                 } catch (e: Exception) {
                     _dataState.value = FeedModelState(error = true)
                 }
             }
         }
-        edited.value = empty
     }
 
     fun edit(post: Post) {
@@ -167,5 +177,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.readAll()
         }
+    }
+
+    fun setPhoto(uri: Uri, file: File){
+        _photo.value = PhotoModel(uri, file)
+    }
+
+    fun clearPhoto(){
+        _photo.value = null
     }
 }

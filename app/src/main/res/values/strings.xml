@@ -19,5 +19,7 @@
     <string name="error_loading">Something went wrong. Try again later</string>
     <string name="unsuccessfull_save">Couldn\'t save the post</string>
     <string name="new_posts">New posts</string>
+    <string name="save">Save</string>
+    <string name="remove">Remove</string>
 
 </resources>

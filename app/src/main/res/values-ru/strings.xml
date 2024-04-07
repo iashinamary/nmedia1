@@ -18,6 +18,8 @@
     <string name="error_loading">Что-то пошло не так. Попробуйте позднее</string>
     <string name="unsuccessfull_save">Пост не удалось сохранить</string>
     <string name="new_posts">Свежие записи</string>
+    <string name="save">Сохранить</string>
+    <string name="remove">Удалить</string>
 
 
 </resources>

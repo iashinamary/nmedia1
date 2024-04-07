@@ -7,6 +7,7 @@ import ru.netology.nmedia.OnInteractionListener
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.utils.load
 import ru.netology.nmedia.utils.loadAndCrop
 
 class PostViewHolder(
@@ -23,6 +24,7 @@ class PostViewHolder(
                     like.text = Counter.reduce(post.likes)
                     share.text = Counter.reduce(post.shares)
                     viewCount.text = Counter.reduce(post.views)
+                    picture.load("http://10.0.2.2:9999/media/${post.attachment?.url}")
 
 
                     like.isChecked = post.likedByMe
@@ -32,6 +34,9 @@ class PostViewHolder(
                     }
                     share.setOnClickListener {
                         onInteractionListener.onShare(post)
+                    }
+                    picture.setOnClickListener {
+                        onInteractionListener.onPictureClick(post)
                     }
 
                     menu.setOnClickListener {

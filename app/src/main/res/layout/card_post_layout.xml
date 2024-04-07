@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-    
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/common_spacing"
-    android:id="@+id/item"
-    >
-
+    android:padding="@dimen/common_spacing">
 
 
     <ImageView
@@ -48,15 +45,15 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/menu"
+        style="@style/Widget.AppTheme.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/common_spacing"
         android:background="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:icon="@drawable/ic_baseline_more_vert_24"
-        style="@style/Widget.AppTheme.Icon"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier_top"
@@ -66,75 +63,80 @@
         app:constraint_referenced_ids="avatar,published"
         tools:layout_editor_absoluteY="16dp" />
 
+
     <TextView
         android:id="@+id/content"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/common_spacing"
-        android:text="test"
-        android:scrollbars = "vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barrier_top" />
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@id/barrier_top"
+        tools:text="@tools:sample/lorem[30]" />
+
+
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintTop_toBottomOf="@id/content"
+        tools:srcCompat="@tools:sample/avatars" />
+
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="content"
+        app:constraint_referenced_ids="picture"
         tools:layout_editor_absoluteY="64dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
+        style="@style/Widget.AppTheme.LikeCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checkable="true"
         android:contentDescription="like"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barrier_bottom"
-        app:icon="@drawable/ic_like_24dp"
         android:text="10"
         android:textColor="?attr/colorControlNormal"
-        style="@style/Widget.AppTheme.LikeCheckBox"
-        />
+        app:icon="@drawable/ic_like_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/barrier_bottom" />
 
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/share"
+        style="@style/Widget.AppTheme.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        app:icon="@drawable/ic_baseline_share_24"
         android:text="5"
         android:textColor="?attr/colorControlNormal"
-        app:layout_constraintTop_toBottomOf="@+id/barrier_bottom"
+        app:icon="@drawable/ic_baseline_share_24"
         app:layout_constraintStart_toEndOf="@+id/like"
-        style="@style/Widget.AppTheme.Icon"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/barrier_bottom" />
 
 
     <ImageView
         android:id="@+id/view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_baseline_remove_red_eye_24"
-        app:layout_constraintTop_toBottomOf="@+id/barrier_bottom"
-        app:layout_constraintEnd_toStartOf="@+id/view_count"
-        android:layout_marginVertical="@dimen/common_spacing"
         android:layout_marginHorizontal="@dimen/spacing_for_count"
-        />
+        android:layout_marginVertical="@dimen/common_spacing"
+        app:layout_constraintEnd_toStartOf="@+id/view_count"
+        app:layout_constraintTop_toBottomOf="@+id/barrier_bottom"
+        app:srcCompat="@drawable/ic_baseline_remove_red_eye_24" />
 
     <TextView
+        android:id="@+id/view_count"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:id="@+id/view_count"
+        android:layout_marginHorizontal="@dimen/spacing_for_count"
         android:text="5"
         android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginHorizontal="@dimen/spacing_for_count"
-        />
+        app:layout_constraintTop_toTopOf="@+id/view" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,16 +2,15 @@ package ru.netology.nmedia.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.OnInteractionListener
@@ -65,6 +64,11 @@ class FeedFragment : Fragment() {
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
+            }
+
+            override fun onPictureClick(post: Post) {
+                findNavController().navigate(R.id.action_feedFragment_to_pictureFragment, bundleOf(ARG_URL to post.attachment?.url))
+
             }
         })
 
