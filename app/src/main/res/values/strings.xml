@@ -21,5 +21,10 @@
     <string name="new_posts">New posts</string>
     <string name="save">Save</string>
     <string name="remove">Remove</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="sign_out">Sign out</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
 
 </resources>

@@ -19,7 +19,7 @@
 
             <EditText
                 android:id="@+id/edit"
-                tools:text="@tools:sample/lorem[300]"
+                tools:text="@tools:sample/lorem[30]"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"

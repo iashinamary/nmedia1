@@ -11,6 +11,7 @@ data class Post(
     var shares: Int,
     var views: Int,
     var attachment: Attachment? = null,
+    val ownedByMe: Boolean = false,
 )
 
 data class Attachment(

@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.Counter
 import ru.netology.nmedia.OnInteractionListener
@@ -38,6 +39,8 @@ class PostViewHolder(
                     picture.setOnClickListener {
                         onInteractionListener.onPictureClick(post)
                     }
+
+                    menu.isVisible = post.ownedByMe
 
                     menu.setOnClickListener {
                         PopupMenu(it.context, it).apply {

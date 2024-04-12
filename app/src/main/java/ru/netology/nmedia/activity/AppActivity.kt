@@ -7,19 +7,30 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import android.Manifest
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
-import ru.netology.nmedia.adapter.PostAdapter
-import ru.netology.nmedia.databinding.ActivityAppLayoutBinding
-import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.fragments.NewPostFragment.Companion.textArg
-import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.AuthViewModel
 
 
 class AppActivity : AppCompatActivity(R.layout.activity_app_layout) {
+
+    val viewModel by viewModels<AuthViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +56,44 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_layout) {
                 )
         }
 
+        lifecycleScope.launch{
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED){
+                viewModel.data.collect{
+                    invalidateOptionsMenu()
+                }
+            }
+        }
+
+        addMenuProvider(object : MenuProvider{
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_main, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.setGroupVisible(R.id.authenticated, viewModel.authenticated)
+                menu.setGroupVisible(R.id.unauthenticated, !viewModel.authenticated)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId){
+                    R.id.signIn -> {
+                        findNavController(R.id.nav_host_fragment)
+                            .navigate(R.id.authFragment)
+                        true
+                    }
+                    R.id.signUp -> {
+                        AppAuth.getInstance().setAuth(5, "x-token")
+                        true
+                    }
+                    R.id.signOut -> {
+                        AppAuth.getInstance().removeAuth()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+        })
         checkGoogleApiAvailability()
     }
 

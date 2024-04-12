@@ -12,8 +12,10 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -42,12 +44,18 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         AppDb.getInstance(context = application).postDao()
     )
 
-    val data: LiveData<FeedModel> = repository.data
-        .map (::FeedModel)
-        .catch { e ->
-            e.printStackTrace()
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .authStateFlow
+        .flatMapLatest { auth ->
+            repository.data.map { posts ->
+                FeedModel(
+                    posts.map { it.copy(ownedByMe = auth.id == it.id) },
+                    posts.isEmpty()
+                )
+            }
         }
         .asLiveData(Dispatchers.Default)
+
 
     val newerCount: LiveData<Int> = data.switchMap {
         val firstId = it.posts.firstOrNull()?.id ?: 0L
@@ -85,6 +93,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     }
+
     fun refreshPosts() = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(refreshing = true)
@@ -173,17 +182,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun readAll(){
+    fun readAll() {
         viewModelScope.launch {
             repository.readAll()
         }
     }
 
-    fun setPhoto(uri: Uri, file: File){
+    fun setPhoto(uri: Uri, file: File) {
         _photo.value = PhotoModel(uri, file)
     }
 
-    fun clearPhoto(){
+    fun clearPhoto() {
         _photo.value = null
     }
 }
