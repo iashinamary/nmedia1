@@ -6,9 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.AuthResult
 import ru.netology.nmedia.dto.Login
-import ru.netology.nmedia.dto.User
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 
@@ -18,19 +19,22 @@ class AuthFragmentViewModel(application: Application) : AndroidViewModel(applica
         AppDb.getInstance(context = application).postDao()
     )
 
-    private val _login = MutableLiveData<Login>()
-    val login: LiveData<Login>
-        get() = _login
-    fun auth(userParams: Login){
+    private val login = MutableLiveData<Login>()
+    private val _authResult: MutableLiveData<AuthResult> = MutableLiveData()
+    val authResult: LiveData<AuthResult> = _authResult
 
-        login.value.let {
-            viewModelScope.launch {
-                try {
-                    repository.updateUser(login.value?.username ?: "",
-                        login.value?.password ?: "")
-                } catch (e: Exception){
-                    _login.value = Login(error = true)
-                }
+    fun auth(userParams: Login) {
+        viewModelScope.launch {
+            try {
+                val user = repository.updateUser(
+                    userParams.username,
+                    userParams.password
+                )
+                login.postValue(Login(userParams.username, userParams.password))
+                AppAuth.getInstance().setAuth(user.id, user.token)
+                _authResult.postValue(AuthResult(success = true))
+            } catch (e: Exception) {
+                _authResult.postValue(AuthResult(success = false))
             }
         }
     }

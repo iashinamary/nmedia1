@@ -35,6 +35,7 @@ class AppAuth private constructor(context: Context) {
             commit()
         }
     }
+
     companion object {
         private const val KEY_ID = "id"
         private const val KEY_TOKEN = "token"
