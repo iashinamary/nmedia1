@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="login"
+        android:hint="@string/login"
         android:background="@drawable/auth_background"
         />
     <EditText
@@ -26,6 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@string/password"
+        android:hint="@string/password"
         android:layout_margin="@dimen/common_spacing"
         android:background="@drawable/auth_background"
         android:inputType="textPassword"

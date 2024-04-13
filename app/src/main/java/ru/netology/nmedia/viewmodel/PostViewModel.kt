@@ -28,6 +28,7 @@ import kotlin.Exception
 
 private val empty = Post(
     id = 0,
+    authorId = 0,
     author = "",
     authorAvatar = "",
     content = "",
@@ -49,7 +50,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         .flatMapLatest { auth ->
             repository.data.map { posts ->
                 FeedModel(
-                    posts.map { it.copy(ownedByMe = auth.id == it.id) },
+                    posts.map { it.copy(ownedByMe = auth.id == it.authorId) },
                     posts.isEmpty()
                 )
             }

@@ -6,5 +6,5 @@ data class Login(
 )
 
 data class AuthResult(
-    val success: Boolean
+    val success: Boolean = false
 )
