@@ -29,7 +29,10 @@ import ru.netology.nmedia.model.PhotoModel
 import java.lang.RuntimeException
 
 
-class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
+class PostRepositoryImpl(
+    private val dao: PostDao,
+    private val apiService: PostsApiService
+) : PostRepository {
 
     override val data = dao.getAll()
         .map(List<PostEntity>::toDto)
@@ -45,7 +48,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 while (true) {
                     try {
                         delay(10_000)
-                        val response = PostsApi.service.getNewer(postId)
+                        val response = apiService.getNewer(postId)
 
                         val body = response.body().orEmpty()
                         emit(body.size)
@@ -63,7 +66,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun getAll() {
         try {
-            val response = PostsApi.service.getAll()
+            val response = apiService.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -79,7 +82,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun likeById(id: Long) {
         try {
-            val response = PostsApi.service.likeById(id)
+            val response = apiService.likeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -95,7 +98,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun dislikeById(id: Long) {
         try {
-            val response = PostsApi.service.dislikeById(id)
+            val response = apiService.dislikeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -115,7 +118,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun save(post: Post) {
         try {
-            val response = PostsApi.service.save(post)
+            val response = apiService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -137,7 +140,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun saveWithAttachment(post: Post, model: PhotoModel) {
         try {
             val media = upload(model)
-            val response = PostsApi.service.save(
+            val response = apiService.save(
                 post.copy(
                     attachment = Attachment(
                         url = media.id,
@@ -160,7 +163,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun updateUser(login: String, password: String): User {
         try {
-            val response = PostsApi.service.updateUser(login, password)
+            val response = apiService.updateUser(login, password)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -181,7 +184,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             photoModel.file.asRequestBody()
         )
 
-        val response = PostsApi.service.saveMedia(part)
+        val response = apiService.saveMedia(part)
 
         if (!response.isSuccessful) {
             throw RuntimeException(response.errorBody()?.toString())
@@ -191,7 +194,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun removeById(id: Long) {
         try {
-            val response = PostsApi.service.removeById(id)
+            val response = apiService.removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

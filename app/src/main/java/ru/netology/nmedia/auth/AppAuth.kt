@@ -1,20 +1,43 @@
 package ru.netology.nmedia.auth
 
 import android.content.Context
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import ru.netology.nmedia.di.DependencyContainer
+import ru.netology.nmedia.dto.PushToken
 
 class AppAuth private constructor(context: Context) {
 
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+    private val idKey = "id"
+    private val tokenKey = "token"
 
-    private val _authStateFlow = MutableStateFlow<AuthState>(
-        AuthState(
-            prefs.getLong(KEY_ID, 0L),
-            prefs.getString(KEY_TOKEN, null)
-        )
-    )
+    private val _authStateFlow: MutableStateFlow<AuthState>
+
+    init {
+        val id = prefs.getLong(idKey, 0)
+        val token = prefs.getString(tokenKey, null)
+
+        if (id == 0L || token == null) {
+            _authStateFlow = MutableStateFlow(AuthState())
+            with(prefs.edit()) {
+                clear()
+                apply()
+            }
+        } else {
+            _authStateFlow = MutableStateFlow(AuthState(id, token))
+        }
+
+        sendPushToken()
+    }
+
     val authStateFlow: StateFlow<AuthState> = _authStateFlow.asStateFlow()
 
     @Synchronized
@@ -25,6 +48,7 @@ class AppAuth private constructor(context: Context) {
             putString(KEY_TOKEN, token)
             commit()
         }
+        sendPushToken()
     }
 
     @Synchronized
@@ -33,6 +57,18 @@ class AppAuth private constructor(context: Context) {
         with(prefs.edit()){
             clear()
             commit()
+        }
+        sendPushToken()
+    }
+
+    fun sendPushToken(token: String? = null){
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                val pushToken = PushToken(token ?: FirebaseMessaging.getInstance().token.await())
+                DependencyContainer.getInstance().postApiService.sendPushToken(pushToken)
+            } catch (e: Exception){
+                e.printStackTrace()
+            }
         }
     }
 
