@@ -90,6 +90,12 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging-ktx"
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
 
+
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_core_version"
@@ -108,8 +114,4 @@ dependencies {
 
     implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
 
-    implementation "com.google.dagger:hilt-android:$hilt_version"
-    kapt "com.google.dagger:hilt-compiler:$hilt_version"
-
-    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 }
