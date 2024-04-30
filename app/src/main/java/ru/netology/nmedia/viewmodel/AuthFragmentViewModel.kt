@@ -9,8 +9,10 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.AuthResult
 import ru.netology.nmedia.dto.Login
 import ru.netology.nmedia.repository.PostRepository
+import javax.inject.Inject
 
-class AuthFragmentViewModel(
+@HiltViewModel
+class AuthFragmentViewModel @Inject constructor(
     private val repository: PostRepository,
     private val appAuth: AppAuth
 ) : ViewModel() {
