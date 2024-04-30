@@ -22,6 +22,7 @@ import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.utils.SingleLiveEvent
 import java.io.File
 import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 private val empty = Post(
     id = 0,

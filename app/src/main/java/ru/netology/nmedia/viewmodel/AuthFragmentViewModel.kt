@@ -10,6 +10,7 @@ import ru.netology.nmedia.dto.AuthResult
 import ru.netology.nmedia.dto.Login
 import ru.netology.nmedia.repository.PostRepository
 import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @HiltViewModel
 class AuthFragmentViewModel @Inject constructor(
