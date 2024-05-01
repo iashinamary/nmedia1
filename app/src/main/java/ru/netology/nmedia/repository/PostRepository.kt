@@ -1,18 +1,15 @@
 package ru.netology.nmedia.repository
 
 
-import androidx.lifecycle.LiveData
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
-import retrofit2.http.POST
-import ru.netology.nmedia.dto.Login
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.User
 import ru.netology.nmedia.model.PhotoModel
-import java.lang.Exception
 
 interface PostRepository {
 
-    val data: Flow<List<Post>>
+    val data: Flow<PagingData<Post>>
     val visibleData: Flow<List<Post>>
 
     fun getNewerCount(postId: Long): Flow<Int>

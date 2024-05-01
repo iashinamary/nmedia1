@@ -21,31 +21,47 @@ data class PostEntity(
     var views: Int = 0,
     val hidden: Boolean = false,
     @Embedded
-    val attachment: Attachment?
+    val attachment: Attachment?,
+    val ownedByMe: Boolean = false,
 ) {
 
     fun toDto() =
-        Post(id, authorId, author, authorAvatar, content, published, likedByMe, likes, shares, views, attachment)
+        Post(
+            id = id,
+            authorId = authorId,
+            author = author,
+            authorAvatar = authorAvatar,
+            content = content,
+            published = published,
+            likedByMe = likedByMe,
+            likes = likes,
+            shares = shares,
+            views = views,
+            attachment = attachment,
+            ownedByMe = ownedByMe
+        )
 
     companion object {
         fun fromDto(dto: Post, hidden: Boolean = false) =
             PostEntity(
-                dto.id,
-                dto.authorId,
-                dto.author,
-                dto.authorAvatar,
-                dto.content,
-                dto.published,
-                dto.likedByMe,
-                dto.likes,
-                dto.shares,
-                dto.views,
-                hidden,
-                dto.attachment
+                id = dto.id,
+                authorId = dto.authorId,
+                author = dto.author,
+                authorAvatar = dto.authorAvatar,
+                content = dto.content,
+                published = dto.published,
+                likedByMe = dto.likedByMe,
+                likes = dto.likes,
+                shares = dto.shares,
+                views = dto.views,
+                hidden = hidden,
+                attachment = dto.attachment,
+                ownedByMe = dto.ownedByMe
             )
 
     }
 }
 
 fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
-fun List<Post>.toEntity(hidden: Boolean = false): List<PostEntity> = map { PostEntity.fromDto(it, hidden) }
+fun List<Post>.toEntity(hidden: Boolean = false): List<PostEntity> =
+    map { PostEntity.fromDto(it, hidden) }
