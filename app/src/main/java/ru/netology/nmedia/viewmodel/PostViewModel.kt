@@ -42,7 +42,7 @@ private val empty = Post(
 )
 
 @HiltViewModel
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     appAuth: AppAuth
@@ -76,20 +76,7 @@ class PostViewModel @Inject constructor(
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
-    init {
-        loadPosts()
-    }
-
-    fun loadPosts() = viewModelScope.launch {
-        try {
-            _dataState.value = FeedModelState(loading = true)
-            repository.getAll()
-            _dataState.value = FeedModelState()
-        } catch (e: Exception) {
-            _dataState.value = FeedModelState(errorLoading = true)
-        }
-
-    }
+    val newerCount = repository.getNewerCount()
 
     fun refreshPosts() = viewModelScope.launch {
         try {
@@ -143,11 +130,7 @@ class PostViewModel @Inject constructor(
 
     }
 
-    fun readAll() {
-        viewModelScope.launch {
-            repository.readAll()
-        }
-    }
+
 
     fun setPhoto(uri: Uri, file: File) {
         _photo.value = PhotoModel(uri, file)

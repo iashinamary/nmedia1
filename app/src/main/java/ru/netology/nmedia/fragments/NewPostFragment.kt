@@ -112,10 +112,10 @@ class NewPostFragment : Fragment() {
             viewModel.clearPhoto()
         }
 
-        viewModel.postCreated.observe(viewLifecycleOwner){
-            viewModel.loadPosts()
-            findNavController().navigateUp()
-        }
+//        viewModel.postCreated.observe(viewLifecycleOwner){
+//            viewModel.loadPosts()
+//            findNavController().navigateUp()
+//        }
 
         return binding.root
     }
