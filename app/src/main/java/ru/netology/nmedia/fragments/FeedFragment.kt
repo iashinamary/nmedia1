@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -17,18 +16,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.OnInteractionListener
 import ru.netology.nmedia.R
-import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.adapter.FeedAdapter
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.databinding.FeedFragmentLayoutBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragments.NewPostFragment.Companion.textArg
@@ -48,7 +45,7 @@ class FeedFragment : Fragment() {
     ): View {
         val binding = FeedFragmentLayoutBinding.inflate(inflater, container, false)
 
-        val adapter = PostAdapter(object : OnInteractionListener {
+        val adapter = FeedAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 findNavController().navigate(
@@ -87,7 +84,10 @@ class FeedFragment : Fragment() {
             }
         })
 
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter{ adapter.retry() },
+            footer = PostLoadingStateAdapter{ adapter.retry() },
+        )
 
         val authViewModel by viewModels<AuthViewModel>()
 
@@ -106,6 +106,7 @@ class FeedFragment : Fragment() {
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
+        /*
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swiperefresh.isRefreshing = state.refreshing
@@ -124,6 +125,7 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+         */
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -138,9 +140,11 @@ class FeedFragment : Fragment() {
                         state.refresh is LoadState.Loading ||
                                 state.prepend is LoadState.Loading ||
                                 state.append is LoadState.Loading
+
                 }
             }
         }
+
 
 
         binding.swiperefresh.setOnRefreshListener {
