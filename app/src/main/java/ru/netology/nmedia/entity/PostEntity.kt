@@ -19,7 +19,6 @@ data class PostEntity(
     var likes: Int = 0,
     var shares: Int = 0,
     var views: Int = 0,
-    val hidden: Boolean = false,
     @Embedded
     val attachment: Attachment?,
     val ownedByMe: Boolean = false,
@@ -54,7 +53,6 @@ data class PostEntity(
                 likes = dto.likes,
                 shares = dto.shares,
                 views = dto.views,
-                hidden = hidden,
                 attachment = dto.attachment,
                 ownedByMe = dto.ownedByMe
             )
