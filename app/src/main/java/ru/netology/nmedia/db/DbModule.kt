@@ -23,9 +23,4 @@ class DbModule {
         .allowMainThreadQueries()
         .fallbackToDestructiveMigration()
         .build()
-
-    @Provides
-    fun providePostDao(
-        appDb: AppDb
-    ): PostDao = appDb.postDao()
 }
