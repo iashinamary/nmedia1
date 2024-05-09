@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.merge
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okio.IOException
+import ru.netology.nmedia.R
 import ru.netology.nmedia.api.*
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostRemoteKeyDao
@@ -32,6 +33,7 @@ import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.TimeSeparator
 import ru.netology.nmedia.dto.User
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
@@ -41,6 +43,7 @@ import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import ru.netology.nmedia.model.PhotoModel
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -54,6 +57,15 @@ class PostRepositoryImpl @Inject constructor(
     postRemoteKeyDao: PostRemoteKeyDao,
 ) : PostRepository {
 
+    val calendar = Calendar.getInstance()
+    val twentyFourHoursAgo = calendar.apply {
+        add(Calendar.HOUR, -24)
+    }.timeInMillis
+    val fortyEightHoursAgo = calendar.apply {
+        add(Calendar.HOUR, -24)
+    }.timeInMillis
+    val currentTimeInMillis = System.currentTimeMillis()
+
     @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 25),
@@ -61,9 +73,18 @@ class PostRepositoryImpl @Inject constructor(
         remoteMediator = PostRemoteMediator(apiService, appDb, postDao, postRemoteKeyDao),
     ).flow
         .map { it.map (PostEntity::toDto)
-            .insertSeparators { previous, _ ->
+            .insertSeparators { previous, next ->
                 if (previous?.id?.rem(5) == 0L) {
                     Ad(Random.nextLong(), "figma.jpg")
+                } else {
+                    null
+                }
+                if (next?.published!! <= twentyFourHoursAgo ) {
+                    TimeSeparator(Random.nextLong(), "Сегодня" )
+                } else if (previous?.published!! <= twentyFourHoursAgo && next.published < fortyEightHoursAgo) {
+                    TimeSeparator(Random.nextLong(), "Вчера")
+                } else if (previous.published <= fortyEightHoursAgo && next.published > fortyEightHoursAgo) {
+                    TimeSeparator(Random.nextLong(), "На прошлой неделе")
                 } else {
                     null
                 }
@@ -229,3 +250,5 @@ class PostRepositoryImpl @Inject constructor(
     }
 
 }
+
+

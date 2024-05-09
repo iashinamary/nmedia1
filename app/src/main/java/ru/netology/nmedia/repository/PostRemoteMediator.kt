@@ -5,6 +5,7 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import kotlinx.coroutines.delay
 import ru.netology.nmedia.api.PostsApiService
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostRemoteKeyDao
@@ -37,6 +38,7 @@ class PostRemoteMediator(
                 }
 
                 LoadType.PREPEND -> {
+                    delay(10_000)
                     return MediatorResult.Success(true)
                 }
 

@@ -35,7 +35,7 @@ private val empty = Post(
     author = "",
     authorAvatar = "",
     content = "",
-    published = "",
+    published = 0,
     likedByMe = false,
     likes = 0,
     shares = 0,
@@ -67,7 +67,7 @@ class PostViewModel @Inject constructor(
             }
         }
 
-    private val _dataState = MutableLiveData<FeedModelState>()
+    private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
