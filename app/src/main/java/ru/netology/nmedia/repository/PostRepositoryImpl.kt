@@ -5,6 +5,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.TerminalSeparatorType
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import kotlinx.coroutines.CancellationException
@@ -64,7 +65,6 @@ class PostRepositoryImpl @Inject constructor(
     val fortyEightHoursAgo = calendar.apply {
         add(Calendar.HOUR, -24)
     }.timeInMillis
-    val currentTimeInMillis = System.currentTimeMillis()
 
     @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<FeedItem>> = Pager(
@@ -73,20 +73,23 @@ class PostRepositoryImpl @Inject constructor(
         remoteMediator = PostRemoteMediator(apiService, appDb, postDao, postRemoteKeyDao),
     ).flow
         .map { it.map (PostEntity::toDto)
-            .insertSeparators { previous, next ->
+            .insertSeparators(TerminalSeparatorType.SOURCE_COMPLETE) { previous, next ->
                 if (previous?.id?.rem(5) == 0L) {
                     Ad(Random.nextLong(), "figma.jpg")
                 } else {
                     null
                 }
-                if (next?.published!! <= twentyFourHoursAgo ) {
-                    TimeSeparator(Random.nextLong(), "Сегодня" )
-                } else if (previous?.published!! <= twentyFourHoursAgo && next.published < fortyEightHoursAgo) {
-                    TimeSeparator(Random.nextLong(), "Вчера")
-                } else if (previous.published <= fortyEightHoursAgo && next.published > fortyEightHoursAgo) {
-                    TimeSeparator(Random.nextLong(), "На прошлой неделе")
-                } else {
-                    null
+                when {
+                    previous == null && next?.published!! < twentyFourHoursAgo -> TimeSeparator(Random.nextLong(), "Сегодня")
+                    previous?.published != null && next?.published != null -> {
+                        when {
+                            previous.published <= twentyFourHoursAgo && twentyFourHoursAgo < next.published && next.published <= fortyEightHoursAgo ->
+                                TimeSeparator(Random.nextLong(), "Вчера")
+                            next.published > fortyEightHoursAgo -> TimeSeparator(Random.nextLong(), "Давно")
+                            else -> null
+                        }
+                    }
+                    else -> null
                 }
             }
     }
