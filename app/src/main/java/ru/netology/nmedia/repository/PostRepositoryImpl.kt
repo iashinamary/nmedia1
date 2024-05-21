@@ -75,7 +75,7 @@ class PostRepositoryImpl @Inject constructor(
         .map { it.map (PostEntity::toDto)
             .insertSeparators(TerminalSeparatorType.SOURCE_COMPLETE) { previous, next ->
                 if (previous?.id?.rem(5) == 0L) {
-                    Ad(Random.nextLong(), "figma.jpg")
+                    return@insertSeparators Ad(Random.nextLong(), "figma.jpg")
                 } else {
                     null
                 }
