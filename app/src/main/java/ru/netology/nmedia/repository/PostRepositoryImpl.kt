@@ -80,14 +80,13 @@ class PostRepositoryImpl @Inject constructor(
                     null
                 }
                 when {
-                    previous == null && next?.published!! < twentyFourHoursAgo -> TimeSeparator(Random.nextLong(), "Сегодня")
-                    previous?.published != null && next?.published != null -> {
-                        when {
-                            previous.published <= twentyFourHoursAgo && twentyFourHoursAgo < next.published && next.published <= fortyEightHoursAgo ->
-                                TimeSeparator(Random.nextLong(), "Вчера")
-                            next.published > fortyEightHoursAgo -> TimeSeparator(Random.nextLong(), "Давно")
-                            else -> null
-                        }
+                    previous == null && next is Post -> {
+                        TimeSeparator(id = Random.nextLong(), text = next.published.timestamp())
+                    }
+                    previous is Post && next is Post -> {
+                       if (previous.published.timestamp() != next.published.timestamp()) {
+                            TimeSeparator(id = Random.nextLong(), text = next.published.timestamp())
+                        } else null
                     }
                     else -> null
                 }
@@ -249,6 +248,17 @@ class PostRepositoryImpl @Inject constructor(
             throw NetworkError
         } catch (e: Exception) {
             throw UnknownError
+        }
+    }
+
+    private fun Long.timestamp(): String {
+        val oneDayInSec = 24 * 60 * 60
+        val nowDay = (System.currentTimeMillis() / 1000) / oneDayInSec
+        val inputDay = this / oneDayInSec
+        return when (nowDay - inputDay) {
+            0L -> "Сегодня"
+            1L -> "Вчера"
+            else -> "Давно"
         }
     }
 
