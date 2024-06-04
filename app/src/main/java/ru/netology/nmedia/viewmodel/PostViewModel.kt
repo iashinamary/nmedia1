@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
@@ -34,7 +35,7 @@ private val empty = Post(
     author = "",
     authorAvatar = "",
     content = "",
-    published = "",
+    published = 0,
     likedByMe = false,
     likes = 0,
     shares = 0,
@@ -42,7 +43,7 @@ private val empty = Post(
 )
 
 @HiltViewModel
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     appAuth: AppAuth
@@ -53,16 +54,20 @@ class PostViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
 
-    val data: Flow<PagingData<Post>> = appAuth.authStateFlow
+    val data: Flow<PagingData<FeedItem>> = appAuth.authStateFlow
         .flatMapLatest { (myId, _) ->
             cached.map { pagingData ->
-                pagingData.map { post ->
-                    post.copy(ownedByMe = post.authorId == myId)
+                pagingData.map { item ->
+                    if (item is Post) {
+                        item.copy(ownedByMe = item.authorId == myId)
+                    } else {
+                        item
+                    }
                 }
             }
         }
 
-    private val _dataState = MutableLiveData<FeedModelState>()
+    private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
@@ -76,20 +81,7 @@ class PostViewModel @Inject constructor(
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
-    init {
-        loadPosts()
-    }
-
-    fun loadPosts() = viewModelScope.launch {
-        try {
-            _dataState.value = FeedModelState(loading = true)
-            repository.getAll()
-            _dataState.value = FeedModelState()
-        } catch (e: Exception) {
-            _dataState.value = FeedModelState(errorLoading = true)
-        }
-
-    }
+    val newerCount = repository.getNewerCount()
 
     fun refreshPosts() = viewModelScope.launch {
         try {
@@ -143,11 +135,7 @@ class PostViewModel @Inject constructor(
 
     }
 
-    fun readAll() {
-        viewModelScope.launch {
-            repository.readAll()
-        }
-    }
+
 
     fun setPhoto(uri: Uri, file: File) {
         _photo.value = PhotoModel(uri, file)

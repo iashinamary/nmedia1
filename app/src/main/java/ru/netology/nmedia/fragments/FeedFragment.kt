@@ -5,25 +5,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.OnInteractionListener
 import ru.netology.nmedia.R
-import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.adapter.FeedAdapter
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.databinding.FeedFragmentLayoutBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragments.NewPostFragment.Companion.textArg
@@ -35,6 +37,7 @@ class FeedFragment : Fragment() {
 
     private val viewModel: PostViewModel by activityViewModels()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,7 +45,7 @@ class FeedFragment : Fragment() {
     ): View {
         val binding = FeedFragmentLayoutBinding.inflate(inflater, container, false)
 
-        val adapter = PostAdapter(object : OnInteractionListener {
+        val adapter = FeedAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 findNavController().navigate(
@@ -73,12 +76,18 @@ class FeedFragment : Fragment() {
             }
 
             override fun onPictureClick(post: Post) {
-                findNavController().navigate(R.id.action_feedFragment_to_pictureFragment, bundleOf(ARG_URL to post.attachment?.url))
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_pictureFragment,
+                    bundleOf(ARG_URL to post.attachment?.url)
+                )
 
             }
         })
 
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter{ adapter.retry() },
+            footer = PostLoadingStateAdapter{ adapter.retry() },
+        )
 
         val authViewModel by viewModels<AuthViewModel>()
 
@@ -86,24 +95,37 @@ class FeedFragment : Fragment() {
             adapter.refresh()
         }
 
+
+        viewModel.newerCount
+            .onEach {
+                binding.newPostsInfo.isVisible
+                binding.newPostsInfo.setOnClickListener {
+                    viewModel.refreshPosts()
+                }
+            }
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        /*
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swiperefresh.isRefreshing = state.refreshing
             binding.errorGroup.isVisible = state.errorLoading
             if (state.errorLoading) {
                 Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
+                    .setAction(R.string.retry_loading) { viewModel.refreshPosts() }
                     .show()
             }
-            if(state.unsaved) {
+            if (state.unsaved) {
                 Toast.makeText(context, getString(R.string.unsuccessfull_save), Toast.LENGTH_SHORT)
                     .show()
             }
-            if(state.error){
+            if (state.error) {
                 Toast.makeText(context, getString(R.string.error_loading), Toast.LENGTH_SHORT)
                     .show()
             }
         }
+         */
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -115,12 +137,11 @@ class FeedFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 adapter.loadStateFlow.collectLatest { state ->
                     binding.swiperefresh.isRefreshing =
-                        state.refresh is LoadState.Loading ||
-                                state.prepend is LoadState.Loading ||
-                                state.append is LoadState.Loading
+                        state.refresh is LoadState.Loading
                 }
             }
         }
+
 
 
         binding.swiperefresh.setOnRefreshListener {
@@ -134,10 +155,6 @@ class FeedFragment : Fragment() {
 //        viewModel.newerCount.observe(viewLifecycleOwner){ state ->
 //                binding.scrollToTop.isVisible = state > 0
 //        }
-
-        binding.scrollToTop.setOnClickListener {
-            viewModel.readAll()
-        }
 
 //        adapter.registerAdapterDataObserver(object : AdapterDataObserver(){
 //            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {

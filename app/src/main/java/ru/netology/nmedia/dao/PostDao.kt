@@ -1,5 +1,6 @@
 package ru.netology.nmedia.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -9,11 +10,11 @@ import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity WHERE hidden = 0 ORDER BY id DESC")
+    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
 
-    @Query("SELECT * FROM PostEntity WHERE hidden = 0 ORDER BY id DESC")
-    fun getAllVisible(): Flow<List<PostEntity>>
+    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    fun getPagingSource(): PagingSource<Int, PostEntity>
 
     @Query("SELECT COUNT(*) == 0 FROM PostEntity")
     suspend fun isEmpty(): Boolean
@@ -21,14 +22,6 @@ interface PostDao {
     @Query("SELECT COUNT(*) FROM PostEntity")
     suspend fun count(): Int
 
-    @Query("SELECT COUNT(*) FROM PostEntity WHERE hidden = 1")
-    suspend fun getUnreadPosts(): Int
-
-    @Query("SELECT COUNT(*) FROM PostEntity WHERE hidden = 1")
-    fun observeUnreadPosts(): Flow<Int>
-
-    @Query("UPDATE PostEntity SET hidden = 0")
-    suspend fun readAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
@@ -48,15 +41,23 @@ interface PostDao {
         likedByMe = CASE WHEN likedByMe THEN 0 ELSE 1 END
         WHERE id = :id
         """)
-    fun likeById(id: Long)
+    suspend fun likeById(id: Long)
 
     @Query("""
         UPDATE PostEntity SET
         shares = likes + 1
         WHERE id = :id
         """)
-    fun shareById(id: Long)
+    suspend fun shareById(id: Long)
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
-    fun removeById(id: Long)
+    suspend fun removeById(id: Long)
+
+    @Query("SELECT MAX(id) FROM PostEntity")
+    fun max(): Flow<Long?>
+
+
+
+    @Query("DELETE FROM PostEntity")
+    suspend fun clear()
 }

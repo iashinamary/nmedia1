@@ -20,7 +20,7 @@ class PostViewHolder(
                 binding.apply {
                     author.text = post.author
                     avatar.loadAndCrop("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
-                    published.text = post.published
+                    published.text = post.published.toString()
                     content.text = post.content
                     like.text = Counter.reduce(post.likes)
                     share.text = Counter.reduce(post.shares)
